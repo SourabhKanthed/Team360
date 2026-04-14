@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team 360 — Employee Profile Builder</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #6c63ff;
+      --primary-dark: #5a52d5;
+      --secondary: #f0eeff;
+      --accent: #ff6584;
+      --text: #1a1a2e;
+      --muted: #6b7280;
+      --border: #e2e8f0;
+      --bg: #f8f7ff;
+      --white: #ffffff;
+      --success: #10b981;
+      --card-shadow: 0 4px 24px rgba(108,99,255,0.10);
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── TOP NAV ── */
+    header {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--primary);
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--primary), #a78bfa);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--secondary);
+      border-radius: 10px;
+      padding: 4px;
+    }
+
+    .nav-tab {
+      padding: 8px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .nav-tab.active {
+      background: var(--white);
+      color: var(--primary);
+      box-shadow: 0 2px 8px rgba(108,99,255,0.15);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #a78bfa);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(108,99,255,0.35);
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      height: calc(100vh - 64px);
+    }
+
+    /* ── FORM PANEL ── */
+    .form-panel {
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 32px;
+    }
+
+    .form-panel::-webkit-scrollbar { width: 6px; }
+    .form-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    .panel-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .panel-subtitle {
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    /* Progress Bar */
+    .progress-bar-wrap {
+      background: var(--border);
+      border-radius: 99px;
+      height: 6px;
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #a78bfa);
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    /* Section Pills */
+    .section-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .section-pill {
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+      background: var(--secondary);
+      color: var(--primary);
+    }
+
+    .section-pill.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .section-pill.done {
+      border-color: var(--success);
+      background: #ecfdf5;
+      color: var(--success);
+    }
+
+    /* Form Sections */
+    .form-section { display: none; }
+    .form-section.active { display: block; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .section-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--secondary);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .section-title { font-size: 1rem; font-weight: 700; }
+    .section-desc { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+    /* Photo Upload */
+    .photo-upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .photo-upload-area:hover {
+      border-color: var(--primary);
+      background: var(--secondary);
+    }
+
+    .photo-preview-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #a78bfa);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: white;
+      margin: 0 auto 12px;
+      overflow: hidden;
+    }
+
+    .photo-preview-circle img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-upload-text { font-size: 0.85rem; color: var(--muted); }
+    .photo-upload-text strong { color: var(--primary); }
+    #photoInput { display: none; }
+
+    /* Form Grid */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-grid.full { grid-template-columns: 1fr; }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.span-2 { grid-column: span 2; }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    label .required { color: var(--accent); }
+
+    input, select, textarea {
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.875rem;
+      font-family: inherit;
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: var(--white);
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(108,99,255,0.1);
+    }
+
+    textarea { resize: vertical; min-height: 100px; }
+
+    /* Skills Tags */
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      min-height: 46px;
+      cursor: text;
+      transition: border-color 0.2s;
+    }
+
+    .tags-container:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(108,99,255,0.1);
+    }
+
+    .tag {
+      background: var(--secondary);
+      color: var(--primary);
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tag-remove {
+      cursor: pointer;
+      font-size: 0.7rem;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    .tag-remove:hover { color: var(--accent); }
+
+    .tag-input {
+      border: none;
+      outline: none;
+      font-size: 0.85rem;
+      flex: 1;
+      min-width: 80px;
+      padding: 2px 4px;
+      background: transparent;
+    }
+
+    /* Social Links */
+    .social-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .social-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    /* Rating Stars */
+    .star-rating {
+      display: flex;
+      gap: 4px;
+    }
+
+    .star {
+      font-size: 22px;
+      cursor: pointer;
+      color: var(--border);
+      transition: color 0.15s;
+    }
+
+    .star.active, .star:hover { color: #f59e0b; }
+
+    /* Section Nav Buttons */
+    .form-nav {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1.5px solid var(--border);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+
+    .btn-next {
+      background: linear-gradient(135deg, var(--primary), #a78bfa);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-next:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(108,99,255,0.35); }
+
+    /* ── PREVIEW PANEL ── */
+    .preview-panel {
+      background: var(--bg);
+      overflow-y: auto;
+      padding: 32px;
+    }
+
+    .preview-panel::-webkit-scrollbar { width: 6px; }
+    .preview-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* Profile Card */
+    .profile-card {
+      background: var(--white);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .card-cover {
+      height: 120px;
+      background: linear-gradient(135deg, var(--primary) 0%, #a78bfa 50%, #ff6584 100%);
+      position: relative;
+    }
+
+    .card-cover-pattern {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.15) 1px, transparent 1px),
+                        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 1px, transparent 1px);
+      background-size: 24px 24px, 32px 32px;
+    }
+
+    .card-avatar-wrap {
+      position: absolute;
+      bottom: -44px;
+      left: 28px;
+    }
+
+    .card-avatar {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      border: 4px solid white;
+      background: linear-gradient(135deg, var(--primary), #a78bfa);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: white;
+      font-weight: 700;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    }
+
+    .card-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .card-body { padding: 56px 28px 28px; }
+
+    .card-name {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .card-title-dept {
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .card-title-dept span {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .card-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .badge {
+      background: var(--secondary);
+      color: var(--primary);
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge.green { background: #ecfdf5; color: var(--success); }
+    .badge.orange { background: #fff7ed; color: #f97316; }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 20px 0;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .info-item label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .info-item .info-value {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 3px;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .bio-text {
+      font-size: 0.875rem;
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .skills-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .skill-tag {
+      background: var(--secondary);
+      color: var(--primary);
+      padding: 5px 14px;
+      border-radius: 99px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-decoration: none;
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      transition: all 0.2s;
+    }
+
+    .social-link:hover { border-color: var(--primary); color: var(--primary); }
+
+    .achievement-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .achievement-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px;
+      background: var(--bg);
+      border-radius: 10px;
+    }
+
+    .achievement-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .achievement-text { font-size: 0.85rem; line-height: 1.5; }
+
+    .rating-display { display: flex; gap: 3px; }
+    .rating-star { font-size: 16px; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 0.875rem; }
+
+    /* Download Button */
+    .card-actions {
+      padding: 16px 28px;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-outline {
+      flex: 1;
+      background: white;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-outline:hover { background: var(--secondary); }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .main { grid-template-columns: 1fr; height: auto; }
+      .form-panel { border-right: none; border-bottom: 1px solid var(--border); }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.span-2 { grid-column: span 1; }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-section.active { animation: fadeIn 0.25s ease; }
+    .profile-card { animation: fadeIn 0.3s ease; }
+
+    /* Color picker row */
+    .color-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .color-swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+
+    .color-swatch:hover, .color-swatch.selected {
+      transform: scale(1.2);
+      border-color: white;
+      box-shadow: 0 0 0 2px var(--primary);
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">👤</div>
+    Team 360 Profile
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showView('form')">✏️ Fill Form</button>
+    <button class="nav-tab" onclick="showView('preview')">👁 Preview</button>
+  </div>
+  <button class="btn-primary" onclick="printProfile()">⬇️ Export Profile</button>
+</header>
+
+<!-- MAIN -->
+<div class="main" id="mainLayout">
+
+  <!-- ─── FORM PANEL ─── -->
+  <div class="form-panel" id="formPanel">
+    <div class="panel-title">Build Your Profile</div>
+    <div class="panel-subtitle">Fill in the sections below — the preview updates live ✨</div>
+
+    <!-- Progress -->
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressBar" style="width: 20%"></div>
+    </div>
+
+    <!-- Section Pills -->
+    <div class="section-nav">
+      <button class="section-pill active" onclick="goSection(0)">📋 Personal</button>
+      <button class="section-pill" onclick="goSection(1)">💼 Work Info</button>
+      <button class="section-pill" onclick="goSection(2)">🛠 Skills</button>
+      <button class="section-pill" onclick="goSection(3)">🌐 Social</button>
+      <button class="section-pill" onclick="goSection(4)">🏆 Achievements</button>
+    </div>
+
+    <!-- ── SECTION 0: Personal Info ── -->
+    <div class="form-section active" id="section-0">
+      <div class="section-header">
+        <div class="section-icon">📋</div>
+        <div>
+          <div class="section-title">Personal Information</div>
+          <div class="section-desc">Your basic identity on the team</div>
+        </div>
+      </div>
+
+      <!-- Photo Upload -->
+      <div class="photo-upload-area" onclick="document.getElementById('photoInput').click()">
+        <div class="photo-preview-circle" id="photoCircle">📷</div>
+        <div class="photo-upload-text"><strong>Click to upload photo</strong><br>JPG, PNG or GIF · Max 5MB</div>
+        <input type="file" id="photoInput" accept="image/*" onchange="handlePhoto(event)" />
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>First Name <span class="required">*</span></label>
+          <input type="text" id="firstName" placeholder="e.g. Sourabh" oninput="updatePreview()" />
+        </div>
+        <div class="form-group">
+          <label>Last Name <span class="required">*</span></label>
+          <input type="text" id="lastName" placeholder="e.g. Kumar" oninput="updatePreview()" />
+        </div>
+        <div class="form-group">
+          <label>Preferred Name / Nickname</label>
+          <input type="text" id="nickname" placeholder="What your team calls you" oninput="updatePreview()" />
+        </div>
+        <div class="form-group">
+          <label>Pronouns</label>
+          <select id="pronouns" onchange="updatePreview()">
+            <option value="">Select...</option>
+            <option>He/Him</option>
+            <option>She/Her</option>
+            <option>They/Them</option>
+            <option>He/They</option>
+            <option>She/They</option>
+            <option>Prefer not to say</option>
+          </select>
+        </div>
+        <div class="form-group span-2">
+          <label>Professional Bio</label>
+          <textarea id="bio" placeholder="Tell your team about yourself — your background, passions, and what drives you professionally..." oninput="updatePreview()"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Location / City</label>
+          <input type="text" id="location" placeholder="e.g. Bangalore, India" oninput="updatePreview()" />
+        </div>
+        <div class="form-group">
+          <label>Time Zone</label>
+          <select id="timezone" onchange="updatePreview()">
+            <option value="">Select...</option>
+            <option>IST (UTC+5:30)</option>
+            <option>PST (UTC-8)</option>
+            <option>EST (UTC-5)</option>
+            <option>CST (UTC-6)</option>
+            <option>MST (UTC-7)</option>
+            <option>GMT (UTC+0)</option>
+            <option>CET (UTC+1)</option>
+            <option>JST (UTC+9)</option>
+            <option>AEST (UTC+10)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Work Email</label>
+          <input type="email" id="email" placeholder="you@company.com" oninput="updatePreview()" />
+        </div>
+        <div class="form-group">
+          <label>Phone (optional)</label>
+          <input type="text" id="phone" placeholder="+91 00000 00000" oninput="updatePreview()" />
+        </div>
+      </div>
+
+      <div class="form-nav">
+        <span></span>
+        <button class="btn-next" onclick="goSection(1)">Work Info →</button>
+      </div>
+    </div>
+
+    <!-- ── SECTION 1: Work Info ── -->
+    <div class="form-section" id="section-1">
+      <div class="section-header">
+        <div class="section-icon">💼</div>
+        <div>
+          <div class="section-title">Work Information</div>
+          <div class="section-desc">Your role, team, and work style</div>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Job Title <span class="required">*</span></label>
+          <input type="text" id="jobTitle" placeholder="e.g. Senior Product Designer" oninput="updatePreview()" />
+        </div>
+        <div class="form-group">
+          <label>Department</label>
+          <select id="department" onchange="updatePreview()">
+            <option value="">Select...</option>
+            <option>Engineering</option>
+            <option>Product</option>
+            <option>Design</option>
+            <option>Marketing</option>
+            <option>Sales</option>
+            <option>Customer Success</option>
+            <option>Finance</option>
+            <option>HR / People Ops</option>
+            <option>Operations</option>
+            <option>Data & Analytics</option>
+            <option>Legal</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Employee ID</label>
+          <input type="text" id="empId" placeholder="e.g. EMP-0042" oninput="updatePreview()" />
+        </div>
+        <div class="form-group">
+          <label>Start Date</label>
+          <input type="date" id="startDate" onchange="updatePreview()" />
+        </div>
+        <div class="form-group">
+          <label>Manager / Reporting To</label>
+          <input type="text" id="manager" placeholder="e.g. Priya Sharma" oninput="updatePreview()" />
+        </div>
+        <div class="form-group">
+          <label>Work Type</label>
+          <select id="workType" onchange="updatePreview()">
+            <option value="">Select...</option>
+            <option>Remote</option>
+            <option>Hybrid</option>
+            <option>In-Office</option>
+          </select>
+        </div>
+        <div class="form-group span-2">
+          <label>Team / Squad</label>
+          <input type="text" id="team" placeholder="e.g. Growth Squad, Platform Team" oninput="updatePreview()" />
+        </div>
+        <div class="form-group span-2">
+          <label>What I'm currently working on</label>
+          <textarea id="currentWork" placeholder="Describe your current projects or focus areas..." style="min-height:80px" oninput="updatePreview()"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Communication Style</label>
+          <select id="commStyle" onchange="updatePreview()">
+            <option value="">Select...</option>
+            <option>Async-first (Slack/email)</option>
+            <option>Sync-friendly (calls welcome)</option>
+            <option>Deep-work blocks (limited hours)</option>
+            <option>Always available</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Collaboration Preference</label>
+          <select id="collabPref" onchange="updatePreview()">
+            <option value="">Select...</option>
+            <option>Independent / focused work</option>
+            <option>Collaborative / pair well</option>
+            <option>Mentoring others</option>
+            <option>Seeking mentorship</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-nav">
+        <button class="btn-ghost" onclick="goSection(0)">← Back</button>
+        <button class="btn-next" onclick="goSection(2)">Skills →</button>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2: Skills ── -->
+    <div class="form-section" id="section-2">
+      <div class="section-header">
+        <div class="section-icon">🛠</div>
+        <div>
+          <div class="section-title">Skills & Expertise</div>
+          <div class="section-desc">What you bring to the team</div>
+        </div>
+      </div>
+
+      <div class="form-grid full">
+        <div class="form-group">
+          <label>Technical / Core Skills</label>
+          <p style="font-size:0.78rem;color:var(--muted);margin-bottom:6px">Type a skill and press <strong>Enter</strong> or <strong>comma</strong> to add</p>
+          <div class="tags-container" id="skillsContainer" onclick="document.getElementById('skillInput').focus()">
+            <input class="tag-input" id="skillInput" placeholder="e.g. React, Python..." onkeydown="handleTagInput(event,'skills')" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Soft Skills / Superpowers</label>
+          <div class="tags-container" id="softSkillsContainer" onclick="document.getElementById('softSkillInput').focus()">
+            <input class="tag-input" id="softSkillInput" placeholder="e.g. Leadership, Empathy..." onkeydown="handleTagInput(event,'softSkills')" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Languages Spoken</label>
+          <div class="tags-container" id="langsContainer" onclick="document.getElementById('langInput').focus()">
+            <input class="tag-input" id="langInput" placeholder="e.g. English, Hindi..." onkeydown="handleTagInput(event,'langs')" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Tools & Platforms</label>
+          <div class="tags-container" id="toolsContainer" onclick="document.getElementById('toolInput').focus()">
+            <input class="tag-input" id="toolInput" placeholder="e.g. Figma, Jira, AWS..." onkeydown="handleTagInput(event,'tools')" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Overall Expertise Level</label>
+          <div class="star-rating" id="expertiseStars">
+            <span class="star" onclick="setRating(1)" title="Beginner">★</span>
+            <span class="star" onclick="setRating(2)" title="Intermediate">★</span>
+            <span class="star" onclick="setRating(3)" title="Proficient">★</span>
+            <span class="star" onclick="setRating(4)" title="Advanced">★</span>
+            <span class="star" onclick="setRating(5)" title="Expert">★</span>
+          </div>
+          <p id="ratingLabel" style="font-size:0.78rem;color:var(--muted);margin-top:4px">Click to rate</p>
+        </div>
+
+        <div class="form-group">
+          <label>Currently Learning</label>
+          <input type="text" id="learning" placeholder="e.g. Rust, System Design, Leadership" oninput="updatePreview()" />
+        </div>
+      </div>
+
+      <div class="form-nav">
+        <button class="btn-ghost" onclick="goSection(1)">← Back</button>
+        <button class="btn-next" onclick="goSection(3)">Social →</button>
+      </div>
+    </div>
+
+    <!-- ── SECTION 3: Social ── -->
+    <div class="form-section" id="section-3">
+      <div class="section-header">
+        <div class="section-icon">🌐</div>
+        <div>
+          <div class="section-title">Social & Links</div>
+          <div class="section-desc">How people can connect with you</div>
+        </div>
+      </div>
+
+      <div class="form-grid full">
+        <div class="form-group">
+          <label>LinkedIn</label>
+          <div class="social-row">
+            <div class="social-icon" style="background:#e8f0fe">🔗</div>
+            <input type="url" id="linkedin" placeholder="https://linkedin.com/in/yourname" oninput="updatePreview()" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>GitHub</label>
+          <div class="social-row">
+            <div class="social-icon" style="background:#f0f0f0">💻</div>
+            <input type="url" id="github" placeholder="https://github.com/yourhandle" oninput="updatePreview()" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Twitter / X</label>
+          <div class="social-row">
+            <div class="social-icon" style="background:#e8f4fb">🐦</div>
+            <input type="url" id="twitter" placeholder="https://twitter.com/yourhandle" oninput="updatePreview()" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Personal Website / Portfolio</label>
+          <div class="social-row">
+            <div class="social-icon" style="background:#fef3f2">🌍</div>
+            <input type="url" id="website" placeholder="https://yourwebsite.com" oninput="updatePreview()" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Fun Fact About You</label>
+          <textarea id="funFact" placeholder="Something quirky or interesting — e.g. I once hiked 40km in a day, I speak 4 languages, I collect vintage cameras..." style="min-height:80px" oninput="updatePreview()"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Hobbies / Interests</label>
+          <div class="tags-container" id="hobbiesContainer" onclick="document.getElementById('hobbyInput').focus()">
+            <input class="tag-input" id="hobbyInput" placeholder="e.g. Photography, Travel..." onkeydown="handleTagInput(event,'hobbies')" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Profile Card Color Theme</label>
+          <div class="color-row">
+            <div class="color-swatch selected" style="background:linear-gradient(135deg,#6c63ff,#a78bfa)" onclick="setTheme('purple',this)" title="Purple"></div>
+            <div class="color-swatch" style="background:linear-gradient(135deg,#06b6d4,#3b82f6)" onclick="setTheme('blue',this)" title="Blue"></div>
+            <div class="color-swatch" style="background:linear-gradient(135deg,#10b981,#34d399)" onclick="setTheme('green',this)" title="Green"></div>
+            <div class="color-swatch" style="background:linear-gradient(135deg,#f97316,#fbbf24)" onclick="setTheme('orange',this)" title="Orange"></div>
+            <div class="color-swatch" style="background:linear-gradient(135deg,#ec4899,#f43f5e)" onclick="setTheme('pink',this)" title="Pink"></div>
+            <div class="color-swatch" style="background:linear-gradient(135deg,#1e293b,#475569)" onclick="setTheme('dark',this)" title="Dark"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-nav">
+        <button class="btn-ghost" onclick="goSection(2)">← Back</button>
+        <button class="btn-next" onclick="goSection(4)">Achievements →</button>
+      </div>
+    </div>
+
+    <!-- ── SECTION 4: Achievements ── -->
+    <div class="form-section" id="section-4">
+      <div class="section-header">
+        <div class="section-icon">🏆</div>
+        <div>
+          <div class="section-title">Achievements & Highlights</div>
+          <div class="section-desc">Your proudest moments and impact</div>
+        </div>
+      </div>
+
+      <div id="achievementsList">
+        <div class="form-grid" style="margin-bottom:12px">
+          <div class="form-group span-2">
+            <label>Achievement 1</label>
+            <input type="text" class="achievement-input" placeholder="e.g. Led migration to microservices — cut response time by 40%" oninput="updatePreview()" />
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-ghost" onclick="addAchievement()" style="width:100%;justify-content:center;display:flex;gap:6px;margin-bottom:20px">+ Add Another Achievement</button>
+
+      <div class="form-grid full">
+        <div class="form-group">
+          <label>Years of Experience</label>
+          <input type="number" id="yearsExp" min="0" max="50" placeholder="e.g. 6" oninput="updatePreview()" />
+        </div>
+        <div class="form-group">
+          <label>Availability for mentorship</label>
+          <select id="mentorship" onchange="updatePreview()">
+            <option value="">Select...</option>
+            <option>Open to mentoring others</option>
+            <option>Looking for a mentor</option>
+            <option>Both — peer learning</option>
+            <option>Not currently available</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-nav">
+        <button class="btn-ghost" onclick="goSection(3)">← Back</button>
+        <button class="btn-next" onclick="finalize()" style="background:linear-gradient(135deg,#10b981,#34d399)">🎉 Generate Profile</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PREVIEW PANEL ─── -->
+  <div class="preview-panel" id="previewPanel">
+    <div class="panel-title">Live Preview</div>
+    <div class="panel-subtitle" style="margin-bottom:20px">Your profile card updates as you type</div>
+
+    <div id="profileCardWrap">
+      <!-- Rendered dynamically -->
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ─── State ─── */
+  const tags = { skills: [], softSkills: [], langs: [], tools: [], hobbies: [] };
+  let currentSection = 0;
+  let expertiseRating = 0;
+  let photoDataURL = null;
+  let cardTheme = 'purple';
+  const themes = {
+    purple: 'linear-gradient(135deg, #6c63ff 0%, #a78bfa 50%, #ff6584 100%)',
+    blue:   'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
+    green:  'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+    orange: 'linear-gradient(135deg, #f97316 0%, #fbbf24 100%)',
+    pink:   'linear-gradient(135deg, #ec4899 0%, #f43f5e 100%)',
+    dark:   'linear-gradient(135deg, #1e293b 0%, #475569 100%)',
+  };
+
+  /* ─── Section Navigation ─── */
+  function goSection(idx) {
+    document.querySelectorAll('.form-section').forEach((s, i) => {
+      s.classList.toggle('active', i === idx);
+    });
+    document.querySelectorAll('.section-pill').forEach((p, i) => {
+      p.classList.remove('active');
+      if (i < idx) p.classList.add('done');
+      else p.classList.remove('done');
+    });
+    document.querySelectorAll('.section-pill')[idx].classList.add('active');
+    currentSection = idx;
+    const pct = ((idx + 1) / 5) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.querySelector('.form-panel').scrollTop = 0;
+  }
+
+  /* ─── View Toggle (mobile) ─── */
+  function showView(view) {
+    document.querySelectorAll('.nav-tab').forEach((t, i) => t.classList.toggle('active', (i === 0 && view === 'form') || (i === 1 && view === 'preview')));
+    const fp = document.getElementById('formPanel');
+    const pp = document.getElementById('previewPanel');
+    if (window.innerWidth <= 900) {
+      fp.style.display = view === 'form' ? 'block' : 'none';
+      pp.style.display = view === 'preview' ? 'block' : 'none';
+    }
+  }
+
+  /* ─── Photo Upload ─── */
+  function handlePhoto(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      photoDataURL = ev.target.result;
+      const circle = document.getElementById('photoCircle');
+      circle.innerHTML = `<img src="${photoDataURL}" />`;
+      updatePreview();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* ─── Tag Input ─── */
+  function handleTagInput(e, key) {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const input = e.target;
+      const val = input.value.replace(',', '').trim();
+      if (val && !tags[key].includes(val)) {
+        tags[key].push(val);
+        renderTags(key);
+        updatePreview();
+      }
+      input.value = '';
+    }
+    if (e.key === 'Backspace' && e.target.value === '' && tags[key].length) {
+      tags[key].pop();
+      renderTags(key);
+      updatePreview();
+    }
+  }
+
+  function renderTags(key) {
+    const containers = {
+      skills: 'skillsContainer', softSkills: 'softSkillsContainer',
+      langs: 'langsContainer', tools: 'toolsContainer', hobbies: 'hobbiesContainer'
+    };
+    const inputs = {
+      skills: 'skillInput', softSkills: 'softSkillInput',
+      langs: 'langInput', tools: 'toolInput', hobbies: 'hobbyInput'
+    };
+    const container = document.getElementById(containers[key]);
+    const input = document.getElementById(inputs[key]);
+    container.innerHTML = '';
+    tags[key].forEach((tag, i) => {
+      const t = document.createElement('span');
+      t.className = 'tag';
+      t.innerHTML = `${tag} <span class="tag-remove" onclick="removeTag('${key}',${i})">✕</span>`;
+      container.appendChild(t);
+    });
+    container.appendChild(input);
+  }
+
+  function removeTag(key, idx) {
+    tags[key].splice(idx, 1);
+    renderTags(key);
+    updatePreview();
+  }
+
+  /* ─── Star Rating ─── */
+  function setRating(n) {
+    expertiseRating = n;
+    const labels = ['', 'Beginner', 'Intermediate', 'Proficient', 'Advanced', 'Expert'];
+    document.querySelectorAll('#expertiseStars .star').forEach((s, i) => s.classList.toggle('active', i < n));
+    document.getElementById('ratingLabel').textContent = labels[n];
+    updatePreview();
+  }
+
+  /* ─── Color Theme ─── */
+  function setTheme(name, el) {
+    cardTheme = name;
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+    el.classList.add('selected');
+    updatePreview();
+  }
+
+  /* ─── Add Achievement Row ─── */
+  function addAchievement() {
+    const list = document.getElementById('achievementsList');
+    const count = list.querySelectorAll('.achievement-input').length + 1;
+    if (count > 6) return;
+    const div = document.createElement('div');
+    div.className = 'form-grid';
+    div.style.marginBottom = '12px';
+    div.innerHTML = `<div class="form-group span-2">
+      <label>Achievement ${count}</label>
+      <input type="text" class="achievement-input" placeholder="Describe your achievement..." oninput="updatePreview()" />
+    </div>`;
+    list.appendChild(div);
+  }
+
+  /* ─── Build Profile Data ─── */
+  function getData() {
+    const achievementInputs = document.querySelectorAll('.achievement-input');
+    const achievements = Array.from(achievementInputs).map(i => i.value.trim()).filter(Boolean);
+
+    return {
+      firstName: document.getElementById('firstName').value.trim(),
+      lastName: document.getElementById('lastName').value.trim(),
+      nickname: document.getElementById('nickname').value.trim(),
+      pronouns: document.getElementById('pronouns').value,
+      bio: document.getElementById('bio').value.trim(),
+      location: document.getElementById('location').value.trim(),
+      timezone: document.getElementById('timezone').value,
+      email: document.getElementById('email').value.trim(),
+      phone: document.getElementById('phone').value.trim(),
+      jobTitle: document.getElementById('jobTitle').value.trim(),
+      department: document.getElementById('department').value,
+      empId: document.getElementById('empId').value.trim(),
+      startDate: document.getElementById('startDate').value,
+      manager: document.getElementById('manager').value.trim(),
+      workType: document.getElementById('workType').value,
+      team: document.getElementById('team').value.trim(),
+      currentWork: document.getElementById('currentWork').value.trim(),
+      commStyle: document.getElementById('commStyle').value,
+      collabPref: document.getElementById('collabPref').value,
+      skills: [...tags.skills],
+      softSkills: [...tags.softSkills],
+      langs: [...tags.langs],
+      tools: [...tags.tools],
+      hobbies: [...tags.hobbies],
+      expertiseRating,
+      learning: document.getElementById('learning').value.trim(),
+      linkedin: document.getElementById('linkedin').value.trim(),
+      github: document.getElementById('github').value.trim(),
+      twitter: document.getElementById('twitter').value.trim(),
+      website: document.getElementById('website').value.trim(),
+      funFact: document.getElementById('funFact').value.trim(),
+      achievements,
+      yearsExp: document.getElementById('yearsExp').value.trim(),
+      mentorship: document.getElementById('mentorship').value,
+      photo: photoDataURL,
+      theme: cardTheme,
+    };
+  }
+
+  /* ─── Render Profile Card ─── */
+  function updatePreview() {
+    const d = getData();
+    const wrap = document.getElementById('profileCardWrap');
+    const fullName = [d.firstName, d.lastName].filter(Boolean).join(' ');
+
+    if (!fullName && !d.jobTitle) {
+      wrap.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">✨</div>
+        <p>Start filling in the form and your profile will appear here!</p>
+      </div>`;
+      return;
+    }
+
+    const initials = [(d.firstName[0] || ''), (d.lastName[0] || '')].join('').toUpperCase() || '?';
+    const avatar = d.photo
+      ? `<img src="${d.photo}" alt="Photo" />`
+      : `<span style="font-size:28px;font-weight:800">${initials}</span>`;
+
+    const coverGrad = themes[d.theme] || themes.purple;
+
+    // Tenure
+    let tenure = '';
+    if (d.startDate) {
+      const start = new Date(d.startDate);
+      const now = new Date();
+      const months = (now.getFullYear() - start.getFullYear()) * 12 + now.getMonth() - start.getMonth();
+      const yrs = Math.floor(months / 12);
+      const mths = months % 12;
+      tenure = yrs > 0 ? `${yrs}y ${mths}m` : `${mths} months`;
+    }
+
+    // Stars
+    const starsHTML = d.expertiseRating
+      ? Array.from({length: 5}, (_, i) =>
+          `<span class="rating-star" style="color:${i < d.expertiseRating ? '#f59e0b' : '#e2e8f0'}">★</span>`
+        ).join('')
+      : '';
+
+    const ratingLabels = ['', 'Beginner', 'Intermediate', 'Proficient', 'Advanced', 'Expert'];
+
+    wrap.innerHTML = `
+    <div class="profile-card">
+      <div class="card-cover" style="background:${coverGrad}">
+        <div class="card-cover-pattern"></div>
+        <div class="card-avatar-wrap">
+          <div class="card-avatar">${avatar}</div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="card-name">${fullName || '—'}${d.nickname ? ` <span style="font-size:0.9rem;color:var(--muted);font-weight:500">(${d.nickname})</span>` : ''}</div>
+        <div class="card-title-dept">
+          ${d.jobTitle ? `<span>${d.jobTitle}</span>` : ''}
+          ${d.jobTitle && d.department ? ' · ' : ''}
+          ${d.department || ''}
+        </div>
+
+        <div class="card-badges">
+          ${d.pronouns ? `<span class="badge">🏷 ${d.pronouns}</span>` : ''}
+          ${d.workType ? `<span class="badge green">🏠 ${d.workType}</span>` : ''}
+          ${d.timezone ? `<span class="badge orange">🕐 ${d.timezone}</span>` : ''}
+          ${tenure ? `<span class="badge">📅 ${tenure}</span>` : ''}
+        </div>
+
+        ${(d.location || d.email || d.empId || d.manager || d.team || d.yearsExp) ? `
+        <div class="divider"></div>
+        <div class="info-grid">
+          ${d.location ? `<div class="info-item"><label>📍 Location</label><div class="info-value">${d.location}</div></div>` : ''}
+          ${d.email ? `<div class="info-item"><label>✉️ Email</label><div class="info-value" style="font-size:0.78rem;word-break:break-all">${d.email}</div></div>` : ''}
+          ${d.empId ? `<div class="info-item"><label>🪪 Employee ID</label><div class="info-value">${d.empId}</div></div>` : ''}
+          ${d.manager ? `<div class="info-item"><label>👤 Reports To</label><div class="info-value">${d.manager}</div></div>` : ''}
+          ${d.team ? `<div class="info-item"><label>👥 Team</label><div class="info-value">${d.team}</div></div>` : ''}
+          ${d.yearsExp ? `<div class="info-item"><label>⏳ Experience</label><div class="info-value">${d.yearsExp} years</div></div>` : ''}
+        </div>` : ''}
+
+        ${d.bio ? `
+        <div class="divider"></div>
+        <div class="section-label">About</div>
+        <div class="bio-text">${d.bio}</div>` : ''}
+
+        ${d.currentWork ? `
+        <div class="divider"></div>
+        <div class="section-label">Currently Working On</div>
+        <div class="bio-text">🚀 ${d.currentWork}</div>` : ''}
+
+        ${(d.skills.length || d.softSkills.length || d.tools.length) ? `
+        <div class="divider"></div>
+        <div class="section-label">Skills & Tools</div>
+        ${d.skills.length ? `<div class="skills-list" style="margin-bottom:8px">${d.skills.map(s => `<span class="skill-tag">⚡ ${s}</span>`).join('')}</div>` : ''}
+        ${d.softSkills.length ? `<div class="skills-list" style="margin-bottom:8px">${d.softSkills.map(s => `<span class="skill-tag" style="background:#ecfdf5;color:#10b981">✨ ${s}</span>`).join('')}</div>` : ''}
+        ${d.tools.length ? `<div class="skills-list">${d.tools.map(s => `<span class="skill-tag" style="background:#fff7ed;color:#f97316">🔧 ${s}</span>`).join('')}</div>` : ''}
+        ${starsHTML ? `<div style="margin-top:10px;display:flex;align-items:center;gap:6px"><div class="rating-display">${starsHTML}</div><span style="font-size:0.78rem;color:var(--muted)">${ratingLabels[d.expertiseRating]}</span></div>` : ''}
+        ` : ''}
+
+        ${d.learning ? `
+        <div class="divider"></div>
+        <div class="section-label">Currently Learning</div>
+        <div class="bio-text">📚 ${d.learning}</div>` : ''}
+
+        ${d.langs.length ? `
+        <div class="divider"></div>
+        <div class="section-label">Languages</div>
+        <div class="skills-list">${d.langs.map(l => `<span class="skill-tag" style="background:#f0f9ff;color:#0ea5e9">🗣 ${l}</span>`).join('')}</div>` : ''}
+
+        ${(d.commStyle || d.collabPref) ? `
+        <div class="divider"></div>
+        <div class="section-label">Work Style</div>
+        ${d.commStyle ? `<div class="bio-text" style="margin-bottom:6px">💬 ${d.commStyle}</div>` : ''}
+        ${d.collabPref ? `<div class="bio-text">🤝 ${d.collabPref}</div>` : ''}` : ''}
+
+        ${d.achievements.length ? `
+        <div class="divider"></div>
+        <div class="section-label">Achievements</div>
+        <div class="achievement-list">
+          ${d.achievements.map(a => `<div class="achievement-item"><div class="achievement-icon">🏆</div><div class="achievement-text">${a}</div></div>`).join('')}
+        </div>` : ''}
+
+        ${d.hobbies.length || d.funFact ? `
+        <div class="divider"></div>
+        <div class="section-label">Beyond Work</div>
+        ${d.hobbies.length ? `<div class="skills-list" style="margin-bottom:${d.funFact?'8':'0'}px">${d.hobbies.map(h => `<span class="skill-tag" style="background:#fdf4ff;color:#a855f7">🎯 ${h}</span>`).join('')}</div>` : ''}
+        ${d.funFact ? `<div class="bio-text">💡 ${d.funFact}</div>` : ''}` : ''}
+
+        ${d.mentorship ? `
+        <div class="divider"></div>
+        <div class="section-label">Mentorship</div>
+        <div class="bio-text">🌱 ${d.mentorship}</div>` : ''}
+
+        ${(d.linkedin || d.github || d.twitter || d.website) ? `
+        <div class="divider"></div>
+        <div class="section-label">Connect</div>
+        <div class="social-links">
+          ${d.linkedin ? `<a href="${d.linkedin}" class="social-link" target="_blank">🔗 LinkedIn</a>` : ''}
+          ${d.github ? `<a href="${d.github}" class="social-link" target="_blank">💻 GitHub</a>` : ''}
+          ${d.twitter ? `<a href="${d.twitter}" class="social-link" target="_blank">🐦 Twitter</a>` : ''}
+          ${d.website ? `<a href="${d.website}" class="social-link" target="_blank">🌍 Website</a>` : ''}
+        </div>` : ''}
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-outline" onclick="printProfile()">🖨 Print / Save PDF</button>
+        <button class="btn-outline" onclick="copyJSON()">📋 Copy Data</button>
+      </div>
+    </div>`;
+  }
+
+  /* ─── Finalize ─── */
+  function finalize() {
+    updatePreview();
+    if (window.innerWidth <= 900) showView('preview');
+    else document.getElementById('previewPanel').scrollTo({ top: 0, behavior: 'smooth' });
+    // Show a success flash
+    const btn = document.querySelector('.btn-next:last-of-type');
+    if (btn) { btn.textContent = '✅ Profile Generated!'; setTimeout(() => btn.textContent = '🎉 Generate Profile', 2000); }
+  }
+
+  /* ─── Print ─── */
+  function printProfile() {
+    const card = document.getElementById('profileCardWrap').innerHTML;
+    if (!card || card.includes('empty-state')) {
+      alert('Please fill in the form first before exporting your profile.');
+      return;
+    }
+    const styleContent = document.querySelector('style').textContent;
+    const htmlContent = `<!DOCTYPE html><html><head>
+      <title>Employee Profile</title>
+      <meta charset="UTF-8"/>
+      <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 40px; background: #f8f7ff; display:flex; justify-content:center; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        .card-actions { display: none !important; }
+        ${styleContent}
+      </style></head><body>${card}</body></html>`;
+
+    try {
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const win = window.open(url, '_blank');
+      if (!win) throw new Error('popup blocked');
+      win.onload = function () {
+        setTimeout(() => { win.print(); URL.revokeObjectURL(url); }, 300);
+      };
+    } catch (e) {
+      // Fallback: open in same tab in a printable overlay
+      const overlay = document.createElement('div');
+      overlay.id = 'printOverlay';
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#f8f7ff;overflow:auto;padding:40px;display:flex;flex-direction:column;align-items:center';
+      overlay.innerHTML = `
+        <div style="margin-bottom:16px;display:flex;gap:10px">
+          <button onclick="window.print()" style="padding:10px 24px;background:#6c63ff;color:white;border:none;border-radius:10px;font-size:0.9rem;font-weight:600;cursor:pointer">🖨 Print / Save PDF</button>
+          <button onclick="document.getElementById('printOverlay').remove()" style="padding:10px 24px;background:#e2e8f0;color:#1a1a2e;border:none;border-radius:10px;font-size:0.9rem;font-weight:600;cursor:pointer">✕ Close</button>
+        </div>
+        ${card}`;
+      document.body.appendChild(overlay);
+    }
+  }
+
+  /* ─── Copy JSON ─── */
+  function copyJSON() {
+    const d = getData();
+    navigator.clipboard.writeText(JSON.stringify(d, null, 2)).then(() => {
+      alert('Profile data copied to clipboard as JSON!');
+    });
+  }
+
+  /* ─── Init ─── */
+  updatePreview();
+</script>
+</body>
+</html>
